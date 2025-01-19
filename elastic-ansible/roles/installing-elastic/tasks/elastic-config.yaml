@@ -1,0 +1,51 @@
+---
+# Customize this section as need
+- name: Ensure Elasticsearch configuration directory exists
+  file:
+    path: /etc/elasticsearch
+    state: directory
+    mode: '0755'
+
+- name: Set cluster.name in elasticsearch.yml
+  lineinfile:
+    path: "{{ path }}"
+    regexp: '^cluster\.name:'
+    line: 'cluster.name: {{ cluster_name }}'
+    state: present
+
+- name: Set node.name in elasticsearch.yml
+  lineinfile:
+    path: "{{ path }}"
+    regexp: '^node\.name:'
+    line: 'node.name: {{ node_name }}'
+    state: present
+
+- name: Set network.host in elasticsearch.yml
+  lineinfile:
+    path: "{{ path }}"
+    regexp: '^network\.host:'
+    line: 'network.host: {{ network_host }}'
+    state: present
+
+- name: Uncomment http.port in elasticsearch.yml
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^#?\s*http\.port:'
+    line: 'http.port: 9200'
+
+- name: Set cluster.initial_master_nodes in elasticsearch.yml
+  lineinfile:
+    path: "{{ path }}"
+    regexp: '^cluster\.initial_master_nodes:'
+    line: 'cluster.initial_master_nodes: {{ initial_master_nodes }}'
+    state: present
+
+- name: Reloading daemon
+  systemd_service:
+    daemon_reload: true
+
+- name: Restart Elasticsearch service to apply changes
+  service:
+    name: elasticsearch
+    state: restarted
+    enable: yes

@@ -1,0 +1,12 @@
+---
+# specify the repository version if necessary
+  
+- name: Adding elastic repository
+  command: >
+    bash -c 'echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/{{elastic-major-version}}/apt stable main" |
+    sudo tee /etc/apt/sources.list.d/elastic-{{elastic-major-version}}.list'
+- name: Installing elastic via apt
+  apt:
+    name: elasticsearch
+    update_cache: yes
+    state: present

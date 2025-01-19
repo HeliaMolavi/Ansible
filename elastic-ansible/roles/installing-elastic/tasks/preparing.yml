@@ -1,0 +1,71 @@
+---
+
+# Check hardware prerequisites for Elasticsearch
+
+- name: Gather system facts
+  setup:
+- name: Check CPU cores
+  debug:
+    msg: >
+      CPU cores: {{ ansible_processor_vcpus }}
+      - Minimum: 2 cores
+      - Recommended: 4–8 cores or more
+  failed_when: ansible_processor_vcpus < 2
+    #- name: Check RAM size
+    #debug:
+    #msg: >
+    # RAM size: {{ ansible_memtotal_mb }} MB
+    # - Minimum: 4 GB
+    # - Recommended: 16–64 GB or more
+    #failed_when: ansible_memtotal_mb < 4096
+    #- name: Check storage size and type
+    #  debug:
+    #    msg: >
+    #  Storage size: {{ ansible_devices[ansible_mounts[0].device].size }}
+    #  - Minimum: 10 GB (HDD)
+    #  - Recommended: 500 GB–1 TB (SSD)
+    #failed_when: ansible_devices[ansible_mounts[0].device].size < "10G"
+
+# apt update
+
+- name: Update the system
+  apt:
+    update_cache: yes
+    upgrade: dist
+
+- name: Install necessary packages
+  apt:
+    name: "{{ required_packages }}"
+    state: present
+
+# time/zone setting
+
+- name: Set timezone to Asia/Tehran
+  timezone:
+    name: Asia/Tehran
+
+- name: Check
+  shell: timedatectl status
+  register: timedate_status
+  changed_when: false
+
+- name: Display current time and date status
+  debug:
+    msg: "{{ timedate_status.stdout }}"
+
+# set hostname
+  # ansible_play_hosts is an ansible variable which contains ansible inventory as a list(and therefor the list arguments have their index)
+- name: Determine the index of the current host in the inventory
+  set_fact:
+    host_index: "{{ ansible_play_hosts.index(inventory_hostname) + 1 }}"
+
+- name: Set the hostname to prv-elasticsearch-{index}
+  hostname:
+    name: "prv-elasticsearch-{{ host_index }}"
+
+- name: Update /etc/hosts with the new hostname and IP
+  lineinfile:
+    path: /etc/hosts
+    regexp: '^{{ ansible_default_ipv4.address }}\s+'
+    line: '{{ ansible_default_ipv4.address }}   prv-elasticsearch-{{ host_index }}'
+    state: present

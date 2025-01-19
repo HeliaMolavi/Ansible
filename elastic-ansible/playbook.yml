@@ -1,0 +1,21 @@
+---
+- name: Elastic cluster settup
+  hosts: all
+  become: true
+  vars:
+    cluster_name: "sample-cluster"
+    node_name: "prv-elasticsearch-1"
+    network_host: "91.216.171.121"
+    initial_master_nodes: '["prv-elasticsearch-1"]'
+    path: "/etc/elasticsearch/elasticsearch.yml"
+
+  tasks: 
+    - name: Include preparation tasks
+      import_tasks: ./roles/installing-elastic/tasks/preparing.yml
+
+    - name: Include installation tasks
+      import_tasks: ./roles/installing-elastic/tasks/installation.yml
+
+    - name: Include Elasticsearch configuration tasks
+      import_tasks: ./roles/installing-elastic/tasks/elastic-config.yaml
+

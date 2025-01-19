@@ -1,0 +1,21 @@
+required_packages:
+  - vim
+  - curl
+  - wget
+  - git
+  - openssl
+  - sudo
+  - iputils-ping
+  - net-tools
+  - netplan.io
+  - bash-completion
+  - inetutils-traceroute
+  - socat
+  - conntrack
+  - ebtables
+  - ipset
+  - ipvsadm
+  - gnupg
+  - gpg
+
+elastic_major_version: "8.x"
